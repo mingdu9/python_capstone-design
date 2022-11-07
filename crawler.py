@@ -18,7 +18,7 @@ def clearData(ref):
 
 
 def seenNewsCrawler():
-    webpage = requests.get('https://finance.naver.com/news/news_list.naver?mode=RANK').text
+    webpage = requests.get('https://finance.naver.com/news/news_list.naver?mode=RANK', headers=headers).text
     soup = BeautifulSoup(webpage, 'html.parser')
     newss = soup.find('ul', attrs={"class": "simpleNewsList"})
     result = []
@@ -44,7 +44,7 @@ def seenNewsCrawler():
 
 
 def newsCrawler(ticker):
-    webpage = requests.get(f'https://finance.naver.com/item/news_news.naver?code={ticker}&page=1').text
+    webpage = requests.get(f'https://finance.naver.com/item/news_news.naver?code={ticker}&page=1', headers=headers).text
     soup = BeautifulSoup(webpage, 'html.parser')
     results = []
     titles = soup.select('.title')
@@ -71,7 +71,7 @@ def newsCrawler(ticker):
 
 
 def noticeCrawler(ticker):
-    webpage = requests.get(f'https://finance.naver.com/item/news_notice.naver?code={ticker}&page=1').text
+    webpage = requests.get(f'https://finance.naver.com/item/news_notice.naver?code={ticker}&page=1', headers=headers).text
     soup = BeautifulSoup(webpage, 'html.parser')
     results = []
     titles = soup.select('.title')
