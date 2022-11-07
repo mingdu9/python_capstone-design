@@ -7,15 +7,43 @@ from pykrx import stock
 
 from dataManage import db
 
+headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.79 Safari/537.36"}
 
-def clearData(ticker, ref):
+def clearData(ref):
     docs = ref.stream()
     for doc in docs:
         doc.reference.delete()
 
+def seenNewsCrawler():
+    webpage = requests.get('https://finance.naver.com/news/news_list.naver?mode=RANK', headers=headers).text
+    soup = BeautifulSoup(webpage, 'html.parser')
+    newss = soup.find('ul', attrs={"class": "simpleNewsList"})
+    result = []
+    for index in range(0,5):
+        value = {}
+        title = newss.select('a')[index]['title']
+        url = newss.select('a')[index]['href']
+        value['title'] = title
+        value['url'] = f'https://finance.naver.com{url}'
+        imgpage = requests.get(f'https://finance.naver.com{url}', headers=headers).text
+        imgsoup = BeautifulSoup(imgpage, 'html.parser')
+        imgSpan = imgsoup.find('span', attrs={"class": "end_photo_org"})
+        imgUrl = imgSpan.select('img')[0]['src']
+        value['img'] = imgUrl
+    newsRefs = db.collection('news')
+    clearData(newsRefs)
+    for data in result:
+        doc_ref = newsRefs.document(data['title'])
+        doc_ref.set({
+            'title': data['title'],
+            'url': data['url'],
+            'img': data['img']
+        })
+
+
 
 def newsCrawler(ticker):
-    webpage = requests.get(f'https://finance.naver.com/item/news_news.naver?code={ticker}&page=1').text
+    webpage = requests.get(f'https://finance.naver.com/item/news_news.naver?code={ticker}&page=1', headers=headers).text
     soup = BeautifulSoup(webpage, 'html.parser')
     results = []
     titles = soup.select('.title')
@@ -42,7 +70,7 @@ def newsCrawler(ticker):
 
 
 def noticeCrawler(ticker):
-    webpage = requests.get(f'https://finance.naver.com/item/news_notice.naver?code={ticker}&page=1').text
+    webpage = requests.get(f'https://finance.naver.com/item/news_notice.naver?code={ticker}&page=1', headers=headers).text
     soup = BeautifulSoup(webpage, 'html.parser')
     results = []
     titles = soup.select('.title')
@@ -99,11 +127,4 @@ def saveNotice(ticker):
 
 
 if __name__ == "__main__":
-    for ticker in stock.get_index_portfolio_deposit_file('1035'):
-        if stock.get_index_portfolio_deposit_file('1894').__contains__(ticker):
-            continue
-        else:
-            saveNews(ticker)
-            time.sleep(3)
-            saveNotice(ticker)
-            time.sleep(3)
+    seenNewsCrawler()

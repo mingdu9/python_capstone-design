@@ -4,13 +4,17 @@ from pytz import timezone
 
 import os
 from dataManage import get_data
-from crawler import saveNews, saveNotice
+from crawler import saveNews, saveNotice, seenNewsCrawler
 from readWIKI import getTerm, getNewTerm
 
 KST = timezone('Asia/Seoul')
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
 
+@app.route('/seen')
+def updateSeenNews():
+    seenNewsCrawler()
+    return 'ok'
 
 @app.route('/term/<index>')
 def sendTerm(index):
