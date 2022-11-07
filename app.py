@@ -43,4 +43,4 @@ scheduler.start()
 scheduler.add_job(get_data, 'cron', day_of_week='0-4', hour='00', minute='00')
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=8080)

@@ -15,11 +15,11 @@ def clearData(ref):
         doc.reference.delete()
 
 def seenNewsCrawler():
-    webpage = requests.get('https://finance.naver.com/news/news_list.naver?mode=RANK', headers=headers).text
+    webpage = requests.get('https://finance.naver.com/news/news_list.naver?mode=RANK').text
     soup = BeautifulSoup(webpage, 'html.parser')
     newss = soup.find('ul', attrs={"class": "simpleNewsList"})
     result = []
-    for index in range(0,5):
+    for index in range(0, 5):
         value = {}
         title = newss.select('a')[index]['title']
         url = newss.select('a')[index]['href']
@@ -43,7 +43,7 @@ def seenNewsCrawler():
 
 
 def newsCrawler(ticker):
-    webpage = requests.get(f'https://finance.naver.com/item/news_news.naver?code={ticker}&page=1', headers=headers).text
+    webpage = requests.get(f'https://finance.naver.com/item/news_news.naver?code={ticker}&page=1').text
     soup = BeautifulSoup(webpage, 'html.parser')
     results = []
     titles = soup.select('.title')
@@ -70,7 +70,7 @@ def newsCrawler(ticker):
 
 
 def noticeCrawler(ticker):
-    webpage = requests.get(f'https://finance.naver.com/item/news_notice.naver?code={ticker}&page=1', headers=headers).text
+    webpage = requests.get(f'https://finance.naver.com/item/news_notice.naver?code={ticker}&page=1').text
     soup = BeautifulSoup(webpage, 'html.parser')
     results = []
     titles = soup.select('.title')
@@ -127,4 +127,4 @@ def saveNotice(ticker):
 
 
 if __name__ == "__main__":
-    seenNewsCrawler()
+    print(newsCrawler('000660'))
