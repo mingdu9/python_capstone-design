@@ -7,12 +7,15 @@ from pykrx import stock
 
 from dataManage import db
 
-headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.79 Safari/537.36"}
+headers = {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.79 Safari/537.36"}
+
 
 def clearData(ref):
     docs = ref.stream()
     for doc in docs:
         doc.reference.delete()
+
 
 def seenNewsCrawler():
     webpage = requests.get('https://finance.naver.com/news/news_list.naver?mode=RANK').text
@@ -30,16 +33,14 @@ def seenNewsCrawler():
         imgSpan = imgsoup.find('span', attrs={"class": "end_photo_org"})
         imgUrl = imgSpan.select('img')[0]['src']
         value['img'] = imgUrl
-    newsRefs = db.collection('news')
-    clearData(newsRefs)
+        result.append(value)
     for data in result:
-        doc_ref = newsRefs.document(data['title'])
+        doc_ref = db.collection('news').document(data['title'])
         doc_ref.set({
             'title': data['title'],
             'url': data['url'],
             'img': data['img']
         })
-
 
 
 def newsCrawler(ticker):
@@ -96,7 +97,7 @@ def noticeCrawler(ticker):
 
 def saveNews(ticker):
     newsRefs = db.collection('stocks').document(ticker).collection('news')
-    clearData(ticker, newsRefs)
+    clearData(newsRefs)
     news = newsCrawler(ticker)
     rand_value = random.randint(1, 7)
     time.sleep(rand_value)
@@ -112,7 +113,7 @@ def saveNews(ticker):
 
 def saveNotice(ticker):
     noticeRefs = db.collection('stocks').document(ticker).collection('notice')
-    clearData(ticker, noticeRefs)
+    clearData(noticeRefs)
     rand_value = random.randint(1, 7)
     time.sleep(rand_value)
     notice = noticeCrawler(ticker)
@@ -127,4 +128,4 @@ def saveNotice(ticker):
 
 
 if __name__ == "__main__":
-    print(newsCrawler('000660'))
+    seenNewsCrawler()
